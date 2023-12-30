@@ -5,7 +5,8 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
-
+	_ "github.com/golang/mock/mockgen/model"
+	
 	"github.com/DatVuongTrong/simple_bank/api"
 	db "github.com/DatVuongTrong/simple_bank/db/sqlc"
 	util "github.com/DatVuongTrong/simple_bank/db/utils"
