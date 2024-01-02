@@ -1,10 +1,9 @@
 package util
 
-const {
+const (
 	USD = "USD"
 	EUR = "EUR"
-}
-
+)
 
 func IsSupportedCurrency(currency string) bool {
 	switch currency {

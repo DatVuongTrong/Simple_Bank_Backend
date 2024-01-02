@@ -12,7 +12,7 @@ CREATE TABLE "entries" (
   "amount" bigint NOT NULL,
   "create_at" timestamptz DEFAULT 'now()'
 );
-
+  
 CREATE TABLE "transfers" (
   "id" bigserial PRIMARY KEY,
   "from_account_id" bigint NOT NULL,
