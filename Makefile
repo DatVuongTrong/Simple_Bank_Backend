@@ -22,5 +22,10 @@ dockerserver:
 	docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:mysecretpassword@postgres:5432/simple_bank?sslmode=disable" simplebank:latest
 mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/DatVuongTrong/simple_bank/db/sqlc Store
+proto: 
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+    --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+    proto/*.proto
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server mock migrateup1 migratedown1 dockerserver
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server mock migrateup1 migratedown1 dockerserver proto
