@@ -1,7 +1,7 @@
 package api
 
 import (
-	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -93,16 +93,17 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	user, err := server.store.GetUser(ctx, req.Username)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, db.ErrRecordNotFound) {
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
-
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
+		
 	}
 
 	err = util.CheckPassword(req.Password, user.HashedPassword)
+
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
@@ -113,10 +114,20 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		server.config.AccessTokenDuration,
 	)
 
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
 	refreshToken, refreshPayload, err := server.tokenMaker.CreateToken(
 		user.Username,
 		server.config.RefreshTokenDuration,
 	)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
 
 	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
 		ID:           refreshPayload.ID,
@@ -130,6 +141,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	rsp := loginUserResponse{
